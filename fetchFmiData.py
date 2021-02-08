@@ -1,4 +1,3 @@
-
 import datetime as dt
 from fmiopendata.wfs import download_stored_query
 import math
