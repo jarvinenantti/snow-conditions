@@ -1,20 +1,30 @@
 # coding=utf-8
 
-# Fetch FMI open data using "fmiopendata"-library
-# https://github.com/pnuu/fmiopendata
-# pip install fmiopendata
-# numpy, requests, pandas, datetime, math, matplotlib
+'''
+Fetch FMI open data using "fmiopendata"-library
+https://github.com/pnuu/fmiopendata
+pip install fmiopendata
+numpy, requests, pandas, datetime, math, matplotlib, pathlib
 
-from toPandasDF import toPandasDF
-from fetchFmiData import fetchFmiData
+Configured for 1.9. - 30.6. (~winter) !
+'''
+
+
 from splitWinters import splitWinters
+from fetchFmiData import fetchFmiData
+from toPandasDF import toPandasDF
 from plotter import plotYear, plotSite
+from fillMaster import fillMaster
+from parameterSpecific import parameterSpecific
 from interpolateNaNs import interpolateNaNs
 from calcStat import calcStat
 from pathlib import Path
 import pandas as pd
 from datetime import datetime
 import numpy as np
+
+# Re-plot ?
+rePlot = False
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
 skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
@@ -42,9 +52,12 @@ for startTime,endTime in zip(startTimes,endTimes):
     
     # Create unique name for yearly parameter query
     name = par+'_'+startTime+'_'+endTime
-    # If pickle-file exists, skip
+    # If pickle-file exists, skip fetch and save, but recreate plots
     if Path('./data/'+name+'.pkl').is_file():
-        print(name+' already exists')
+        print(name+' already exists, re-plot')
+        if rePlot:
+            df = pd.read_pickle(Path('./data/'+name+'.pkl'))
+            plotYear(df,skiCenters,par,name)
         continue
     # Fetch data as a list of queries
     fmiData = fetchFmiData(sites,startTime,endTime)
@@ -52,12 +65,14 @@ for startTime,endTime in zip(startTimes,endTimes):
     df = toPandasDF(fmiData,sites)
     # Save to pickle-files (data-folder)
     df.to_pickle("./data/"+name+".pkl")
-    # Save yearly plots (pics-folder)
+    # Save yearly plots separately (pics-folder)
     plotYear(df,skiCenters,par,name)
+    # Delete dataframe
+    del(df)
+
 
 # To calculate statistics for each site
-
-# Create general DatetimeIndex column (ei karkausvuotta)
+# create general DatetimeIndex column (no leap year)
 rng = pd.date_range(pd.Timestamp("2000-09-01"),
                     periods=303, freq='d')
 gI = rng.strftime('%m-%d')
@@ -70,36 +85,11 @@ for c in sites:
     master[c]['date'] = master[c].index
     master[c].index = days
 
-# with dataframe of years as columns
-p = Path('./data')
-winter = startWinter
+# Fill sites with yearly (winter) data
+master = fillMaster(master,startWinter)
 
-# Iterate every file from the data-folder
-for year in list(p.glob('**/*.pkl')):
-    unpickled_df = pd.read_pickle(year)
-    # Convert datetime index to string and remove year
-    unpickled_df.index = unpickled_df.index.strftime('%m-%d')
-    # Iterate every site
-    for (center, data) in unpickled_df.iteritems():
-        if center == 'unit':
-            continue
-        dfS = pd.DataFrame(data = data) # single site, single period
-        # Set winter for column name
-        name = str(winter)+'-'+str(winter+1)
-        dfS = dfS.rename(columns={center: name})
-        # Create new "date"-column from index
-        dfS['date'] = dfS.index
-        # Drop duplicates
-        dfSD = dfS.drop_duplicates(subset="date")
-        l = len(dfSD)
-        # Set integer list of days as index
-        dfSD.index = np.linspace(1, l, l, dtype=int)
-        # Join based on date-column (to restrict sort)
-#         master[center] = master[center].join(dfS, how='left', sort=False)
-        master[center] = master[center].merge(dfSD, how='left',
-                                              left_on='date', right_on='date')
-        
-    winter += 1
+# Do parameter specific tricks (if any)
+master = parameterSpecific(master,par)
 
 # Fill NaN values with linear interpolation
 master = interpolateNaNs(master)
@@ -109,38 +99,3 @@ master = calcStat(master)
 
 # Plot site specific statistics
 plotSite(master,par,startWinter,endWinter,siteToSki)
-
-# print(type(fmiData))
-# print(fmiData)
-# print(fmiData[0].data[sites[0]]['snow_aws'])
-
-# print(df)
-# cols = list(df.columns.values)
-# print(cols)
-# print(df.index)
-# for ind in df.index:
-#     print(ind)
-
-# unpickled_df = pd.read_pickle("./dummy.pkl")
-
-
-'''
-# To test
-year = list(p.glob('**/*.pkl'))[0]
-unpickled_df = pd.read_pickle(year)
-unpickled_df.index = unpickled_df.index.strftime('%m-%d')
-center = 'Inari Saariselkä matkailukeskus'
-data = unpickled_df[center]
-dfS = pd.DataFrame(data = data) # single site, single period
-name = str(winter)+'-'+str(winter+1)
-dfS = dfS.rename(columns={center: name})
-dfS['date'] = dfS.index
-dfSD = dfS.drop_duplicates(subset="date")
-l = len(dfSD)
-dfSD.index = np.linspace(1, l, l, dtype=int)
-test = master[center]
-test = test.merge(dfSD, how='left', left_on='date', right_on='date')
-winter += 1
-year = list(p.glob('**/*.pkl'))[1]
-test2 = test.merge(dfSD, how='left', left_on='date', right_on='date')
-'''

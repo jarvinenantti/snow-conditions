@@ -27,3 +27,19 @@ def toPandasDF(fmiData,sites):
         df = pd.concat([df, df2])
 
     return(df)
+
+
+''' To test
+print(type(fmiData))
+print(fmiData)
+print(fmiData[0].data[sites[0]]['snow_aws'])
+
+print(df)
+cols = list(df.columns.values)
+print(cols)
+print(df.index)
+for ind in df.index:
+    print(ind)
+
+unpickled_df = pd.read_pickle("./dummy.pkl")
+'''
