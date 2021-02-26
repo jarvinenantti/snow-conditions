@@ -4,11 +4,11 @@ from pathlib import Path
 import datetime as dt
 
 
-def fillMaster(master,startWinter):
+def fillMaster(master,startWinter,years):
     '''Fill master dataframe with sites with year columns'''
     
     # Years as columns
-    p = Path('./data')
+    p = Path('./'+years+'/data')
     winter = startWinter
 
     # Iterate every file from the data-folder

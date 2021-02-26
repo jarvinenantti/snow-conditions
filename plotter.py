@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 import datetime as dt
 
 
-def plotYear(df,skiCenters,par,name):
+def plotYear(df,skiCenters,par,name,years):
     '''Plot yearly measurements'''
 
     plt.close("all")
@@ -19,7 +19,7 @@ def plotYear(df,skiCenters,par,name):
     # Set ski centers as legend
     plt.legend(skiCenters)
     # Save figure
-    plt.savefig('./pics/'+name+'.png')
+    plt.savefig('./'+years+'/pics/'+name+'.png')
 
 
 def plotSite(data,par,startWinter,endWinter,siteToSki):
@@ -67,4 +67,4 @@ def plotSite(data,par,startWinter,endWinter,siteToSki):
         ax.set_title(siteToSki[key]+', mean, 50% quantile, and 80% quantile')
         # Save figure
         name = par+'_'+siteToSki[key]+'_'+str(startWinter)+'_'+str(endWinter)
-        plt.savefig('./pics/'+name+'.png')
+        plt.savefig('./sites/'+name+'.png')
