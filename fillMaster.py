@@ -4,15 +4,15 @@ from pathlib import Path
 import datetime as dt
 
 
-def fillMaster(master,startWinter,years):
+def fillMaster(master,startWinter,pD):
     '''Fill master dataframe with sites with year columns'''
     
     # Years as columns
-    p = Path('./'+years+'/data')
+    p = Path('./'+str(pD))
     winter = startWinter
 
-    # Iterate every file from the data-folder
-    for year in list(p.glob('**/*.pkl')):
+    # Iterate every file from the data-folder (sort by name)
+    for year in list(sorted(p.glob('**/*.pkl'))):
         unpickled_df = pd.read_pickle(year)
         # Convert datetime index to string and remove year
         unpickled_df.index = unpickled_df.index.strftime('%m-%d')

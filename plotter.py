@@ -4,7 +4,7 @@ import matplotlib.dates as mdates
 import datetime as dt
 
 
-def plotYear(df,skiCenters,par,name,years):
+def plotYear(df,skiCenters,par,name,years,pP):
     '''Plot yearly measurements'''
 
     plt.close("all")
@@ -19,10 +19,10 @@ def plotYear(df,skiCenters,par,name,years):
     # Set ski centers as legend
     plt.legend(skiCenters)
     # Save figure
-    plt.savefig('./'+years+'/pics/'+name+'.png')
+    plt.savefig('./'+str(pP)+'/'+name+'.png')
 
 
-def plotSite(data,par,startWinter,endWinter,siteToSki):
+def plotSite(data,par,startWinter,endWinter,siteToSki,siteToEst,pS):
     '''Plot site statistics'''
     
 #     # Generate datetimes (arbitrary, no leap year) for better interpretability
@@ -30,6 +30,8 @@ def plotSite(data,par,startWinter,endWinter,siteToSki):
     ticks = ['09-01','10-01','11-01','12-01','01-01','02-01','03-01','04-01','05-01','06-01']
 
     unit = ''
+    begin = ''
+    end = str(endWinter)
 
     plt.close("all")
     # Loop all sites
@@ -57,14 +59,19 @@ def plotSite(data,par,startWinter,endWinter,siteToSki):
             ax.set_ylim(0,180) # 180 cm max for snow
             unit = '(cm)'
         ax.set_ylabel(par+' '+unit)
-#         # Interpret the x-axis values as dates
-#         ax.xaxis_date()
-#         ax.set_xticks(site['date'].values.tolist()[0::31])
+        #         # Interpret the x-axis values as dates
+        #         ax.xaxis_date()
+        #         ax.set_xticks(site['date'].values.tolist()[0::31])
         ax.set_xticks(ticks)
         # Rotate x-axis ticks
         fig.autofmt_xdate()
+        # Site specific start year
+        if siteToEst[key] > startWinter:
+            begin = str(siteToEst[key])
+        else:
+            begin = str(startWinter)
         # Set title
-        ax.set_title(siteToSki[key]+', mean, 50% quantile, and 80% quantile')
+        ax.set_title(siteToSki[key]+' '+begin+'-'+end+', mean, 50% quantile, and 80% quantile')
         # Save figure
-        name = par+'_'+siteToSki[key]+'_'+str(startWinter)+'_'+str(endWinter)
-        plt.savefig('./sites/'+name+'.png')
+        name = par+'_'+siteToSki[key]+'_'+begin+'_'+end
+        plt.savefig('./'+str(pS)+'/'+name+'.png')
