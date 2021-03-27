@@ -17,7 +17,7 @@ from plotter import plotYear, plotSite
 from fillMaster import fillMaster
 from parameterSpecific import parameterSpecific
 from interpolateNaNs import interpolateNaNs
-from calcStat import calcStat
+from calcStat import calcRowStat, calcYearStat
 
 from pathlib import Path
 import pandas as pd
@@ -26,7 +26,7 @@ import numpy as np
 
 # Re-plot ?
 rePlotYears = False
-rePlotSites = True
+rePlotSites = False
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
 skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
@@ -40,11 +40,22 @@ sites = ['Inari Saariselkä matkailukeskus','Kittilä kirkonkylä','Kittilä Ken
 est = [1976, 2009, 2002, 2006, 1966, 2002, 2009, 1979]
 excl = [[1976], [2009], [2002], [0], [1967], [2002], [0], [1982]] # years to exclude
 
+# Example query timeperiod (for past winters)
+# startTime = '2020-09-01T00:00:00'
+# endTime = '2021-06-30T00:00:00'
+# Example query timeperiod (for ongoing winter)
+# startTime = '2020-09-01T00:00:00'
+# endTime = '2021-02-20T00:00:00'
+
 # Define timeperiod in winters
 startWinter = 1966
 endWinter = 2020
 assert endWinter > startWinter
 years = str(startWinter)+'-'+str(endWinter)
+
+# Define start and end of winter
+startDay = '-09-01T00:00:00'
+endDay = '-06-30T00:00:00'
 
 # Generate data, pics, and sites folders
 pD = Path('./'+years+'/data')
@@ -64,14 +75,7 @@ except FileExistsError:
     print('sites already exists')
 
 # Generate timeperiods for winters
-[startTimes,endTimes] = splitWinters(startWinter,endWinter)
-
-# Example timeperiod (for past winters)
-# startTime = '2020-09-01T00:00:00'
-# endTime = '2021-06-30T00:00:00'
-# Example timeperiod (for ongoing winter)
-# startTime = '2020-09-01T00:00:00'
-# endTime = '2021-02-20T00:00:00'
+[startTimes,endTimes] = splitWinters(startWinter,endWinter,startDay,endDay)
 
 # Define parameter of interest
 par = 'snow_aws' # snow cover
@@ -141,7 +145,7 @@ master = parameterSpecific(master,par)
 master = interpolateNaNs(master)
 
 # Calculate statistics columns
-master = calcStat(master)
+master = calcRowStat(master)
 
 # Plot site specific statistics
 if rePlotSites:

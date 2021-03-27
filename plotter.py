@@ -75,3 +75,8 @@ def plotSite(data,par,startWinter,endWinter,siteToSki,siteToEst,pS):
         # Save figure
         name = par+'_'+siteToSki[key]+'_'+begin+'_'+end
         plt.savefig('./'+str(pS)+'/'+name+'.png')
+
+
+def plotDecomposition(data):
+    ''' Plot components of timeseries'''
+
