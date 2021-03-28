@@ -1,5 +1,5 @@
 # snow-conditions
-Fetch and plot historical snow conditions of FMI-sites close to ski centers in Lapland
+Fetch and plot historical snow conditions of FMI-sites close to ski centers in Lapland.
 Use FMI open data API
 
 ![Example of site statistics](example.png)
