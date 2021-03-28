@@ -77,6 +77,35 @@ def plotSite(data,par,startWinter,endWinter,siteToSki,siteToEst,pS):
         plt.savefig('./'+str(pS)+'/'+name+'.png')
 
 
-def plotDecomposition(data):
-    ''' Plot components of timeseries'''
+def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pS,raw):
+    ''' Plot timeseries of each site'''
 
+    unit = ''
+    begin = ''
+    end = str(endWinter)
+
+    plt.close("all")
+    # Loop all sites
+    for key in data.keys():
+        # Select the site
+        site = data[key]
+        # Plot using time series plot
+        plt.plot_date(site.index, site[key], linestyle ='solid', marker = 'None')
+        # Set max y-limit for snow
+        if par == 'snow_aws':
+            plt.ylim(0,180) # 180 cm max for snow
+            unit = '(cm)'
+        plt.ylabel(par+' '+unit)
+        # Rotate x-axis ticks
+        plt.gcf().autofmt_xdate
+        # Site specific start year
+        if siteToEst[key] > startWinter:
+            begin = str(siteToEst[key])
+        else:
+            begin = str(startWinter)
+        # Set title
+        plt.title(siteToSki[key]+' '+begin+'-'+end+' '+'1.9.-30.6.'+' '+raw)
+        # Save figure and close
+        name = par+'_'+siteToSki[key]+'_'+begin+'_'+end+'_ts'
+        plt.savefig('./'+str(pS)+'/'+name+'.png')
+        plt.close("all")
