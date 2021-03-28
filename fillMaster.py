@@ -1,11 +1,25 @@
-import pandas as pd
-import numpy as np
 from pathlib import Path
 import datetime as dt
+import numpy as np
+import pandas as pd
 
 
 def fillMaster(master,startWinter,pD):
     '''Fill master dataframe with sites with year columns'''
+    
+    # To calculate statistics for each site
+    # create general DatetimeIndex column (no leap year)
+    rng = pd.date_range(pd.Timestamp("2000-09-01"),
+                        periods=303, freq='d')
+    gI = rng.strftime('%m-%d')
+    days = np.linspace(1, 303, 303, dtype=int)
+
+    # Create one master dictionary of sites
+    master = {}
+    for c in sites:
+        master[c] = pd.DataFrame(index=gI)
+        master[c]['date'] = master[c].index
+        master[c].index = days
     
     # Years as columns
     p = Path('./'+str(pD))

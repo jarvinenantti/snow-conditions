@@ -9,24 +9,34 @@ numpy, requests, pandas, datetime, math, matplotlib, pathlib, os
 Configured for 1.9. - 30.6. (~winter) !
 '''
 
+from createPaths import createPaths
 from splitWinters import splitWinters
 from checkAvailability import checkAvailability
 from fetchFmiData import fetchFmiData
 from toPandasDF import toPandasDF
-from plotter import plotYear, plotSite
+from plotter import plotYear, plotSite, plotTimeseries
 from fillMaster import fillMaster
 from parameterSpecific import parameterSpecific
 from interpolateNaNs import interpolateNaNs
 from calcStat import calcRowStat, calcYearStat
+from createTimeseries import createTimeseries
 
 from pathlib import Path
-import pandas as pd
 from datetime import datetime
 import numpy as np
+import pandas as pd
 
-# Re-plot ?
+
+# Yearly inspection YES/NO
+yearly = False
+
+# Timeseries inspection YES/NO
+timeseries = True
+
+# Re-plot YES/NO
 rePlotYears = False
 rePlotSites = False
+rePlotTS = True
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
 skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
@@ -58,21 +68,10 @@ startDay = '-09-01T00:00:00'
 endDay = '-06-30T00:00:00'
 
 # Generate data, pics, and sites folders
-pD = Path('./'+years+'/data')
-try:
-    pD.mkdir(parents=True, exist_ok=False)
-except FileExistsError:
-    print(years+' already exists')
-pP = Path('./'+years+'/pics')
-try:
-    pP.mkdir(parents=True, exist_ok=False)
-except FileExistsError:
-    print(years+' already exists')
-pS = Path('./'+'sites')
-try:
-    pS.mkdir(parents=True, exist_ok=False)
-except FileExistsError:
-    print('sites already exists')
+paths = createPaths(years)
+pD = paths[0]  # data
+pP = paths[1]  # pics
+pS = paths[2]  # sites
 
 # Generate timeperiods for winters
 [startTimes,endTimes] = splitWinters(startWinter,endWinter,startDay,endDay)
@@ -121,32 +120,35 @@ for startTime,endTime in zip(startTimes,endTimes):
     # Delete dataframe to free space immediately
     del(df)
 
-# To calculate statistics for each site
-# create general DatetimeIndex column (no leap year)
-rng = pd.date_range(pd.Timestamp("2000-09-01"),
-                    periods=303, freq='d')
-gI = rng.strftime('%m-%d')
-days = np.linspace(1, 303, 303, dtype=int)
 
-# Create one master dictionary of sites
-master = {}
-for c in sites:
-    master[c] = pd.DataFrame(index=gI)
-    master[c]['date'] = master[c].index
-    master[c].index = days
+if yearly:
+    # Fill sites with yearly (winter) data
+    master = fillMaster(master,startWinter,pD)
 
-# Fill sites with yearly (winter) data
-master = fillMaster(master,startWinter,pD)
+    # Do parameter specific tricks (if any)
+    master = parameterSpecific(master,par)
 
-# Do parameter specific tricks (if any)
-master = parameterSpecific(master,par)
+    # Fill NaNs using linear interpolation
+    master = interpolateNaNs(master)
 
-# Fill NaN values with linear interpolation
-master = interpolateNaNs(master)
+    # Calculate statistics columns
+    master = calcRowStat(master)
 
-# Calculate statistics columns
-master = calcRowStat(master)
+    # Plot site specific statistics
+    if rePlotSites:
+        plotSite(master,par,startWinter,endWinter,siteToSki,siteToEst,pS)
 
-# Plot site specific statistics
-if rePlotSites:
-    plotSite(master,par,startWinter,endWinter,siteToSki,siteToEst,pS)
+    # Delete master file to free space
+    del(master)
+
+
+if timeseries:
+    # Create timeseries-dataframes
+    ts = createTimeseries(sites,pD)
+
+    # Plot timeseries
+    if rePlotTS:
+        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'unprocessed')
+
+    # Delete timeseries to free space
+    # del(ts)
