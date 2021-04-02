@@ -18,7 +18,7 @@ from plotter import plotYear, plotSite, plotTimeseries
 from fillMaster import fillMaster
 from parameterSpecific import parameterSpecific
 from interpolateNaNs import interpolateNaNs
-from calcStat import calcRowStat, calcYearStat
+from calcStat import calcRowStat, calcYearStat, deCompose
 from createTimeseries import createTimeseries
 
 from pathlib import Path
@@ -27,16 +27,17 @@ import numpy as np
 import pandas as pd
 
 
-# Yearly inspection YES/NO
+# Yearly analysis YES/NO
 yearly = False
 
-# Timeseries inspection YES/NO
+# Timeseries analysis YES/NO
 timeseries = True
 
 # Re-plot YES/NO
 rePlotYears = False
 rePlotSites = False
-rePlotTS = True
+rePlotTS = False # timeseries
+rePlotDC = True # timeseries decomposition
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
 skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
@@ -82,6 +83,7 @@ par = 'snow_aws' # snow cover
 # Zip to dictionaries
 siteToSki = dict(zip(sites, skiCenters))
 siteToEst = dict(zip(sites, est))
+
 
 # Fetch, transform and save year-by-year data and pics
 for startTime,endTime in zip(startTimes,endTimes):
@@ -149,6 +151,12 @@ if timeseries:
     # Plot timeseries
     if rePlotTS:
         plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'unprocessed')
+
+    # Interpolate missing values
+    ts = interpolateNaNs(ts)
+
+    # Decompose timeseries into statsmodels
+    models = deCompose(ts,par,pS,rePlotDC)
 
     # Delete timeseries to free space
     # del(ts)

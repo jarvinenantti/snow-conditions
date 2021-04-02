@@ -109,3 +109,16 @@ def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pS,raw):
         name = par+'_'+siteToSki[key]+'_'+begin+'_'+end+'_ts'
         plt.savefig('./'+str(pS)+'/'+name+'.png')
         plt.close("all")
+
+
+def plotDecomposition(result_add,par,site,pS):
+    '''Plot statsmodels decomposition of timeseries-data'''
+
+    plt.close("all")
+    plt.rcParams.update({'figure.figsize': (10,10)})
+    result_add.plot().suptitle('Additive Decomposition', fontsize=22)
+
+    # Save figure and close
+    name = par+'_'+site
+    plt.savefig('./'+str(pS)+'/'+name+'.png')
+    plt.close("all")

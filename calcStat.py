@@ -1,4 +1,8 @@
 import pandas as pd
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+from plotter import plotDecomposition
+
 
 def calcRowStat(data):
     '''Calculate statistics columns'''
@@ -31,3 +35,18 @@ def calcYearStat(data,site,year):
         for year in site.keys():
             # Pandas describe key statistics
             year.describe()
+
+
+def deCompose(data,par,pS,rePlotDC):
+    '''Decompose timeseries using statsmodels (additive model)'''
+    
+    # Loop add sites
+    for site in data.keys():
+        # Check that no missing periods
+        if data[site].isna().any()[0]:
+            print(site+' has NaN values after interpolation')
+            continue
+        # Decompose
+        result_add = seasonal_decompose(data[site], model='additive', extrapolate_trend='freq', period=303)
+        if rePlotDC:
+            plotDecomposition(result_add,par,site,pS)
