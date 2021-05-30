@@ -47,6 +47,6 @@ def deCompose(data,par,pS,rePlotDC):
             print(site+' has NaN values after interpolation')
             continue
         # Decompose
-        result_add = seasonal_decompose(data[site], model='additive', extrapolate_trend='freq', period=303)
+        result_add = seasonal_decompose(data[site], model='additive', period=303, extrapolate_trend='freq')
         if rePlotDC:
             plotDecomposition(result_add,par,site,pS)

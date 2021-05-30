@@ -5,6 +5,6 @@ def interpolateNaNs(data):
     
     # Loop all sites
     for key in data.keys():
-        data[key] = data[key].interpolate()
+        data[key] = data[key].interpolate(method='spline', order=3)
 
     return(data)

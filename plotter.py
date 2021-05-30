@@ -106,8 +106,8 @@ def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pS,raw):
         # Set title
         plt.title(siteToSki[key]+' '+begin+'-'+end+' '+'1.9.-30.6.'+' '+raw)
         # Save figure and close
-        name = par+'_'+siteToSki[key]+'_'+begin+'_'+end+'_ts'
-        plt.savefig('./'+str(pS)+'/'+name+'.png')
+        name = par+'_'+siteToSki[key]+'_'+begin+'_'+end+'_ts_'+raw
+        plt.savefig('./'+str(pS)+'/ts/'+name+'.png')
         plt.close("all")
 
 
@@ -119,6 +119,6 @@ def plotDecomposition(result_add,par,site,pS):
     result_add.plot().suptitle('Additive Decomposition', fontsize=22)
 
     # Save figure and close
-    name = par+'_'+site
+    name = par+'_'+site+'_dc'
     plt.savefig('./'+str(pS)+'/'+name+'.png')
     plt.close("all")

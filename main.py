@@ -27,17 +27,17 @@ import numpy as np
 import pandas as pd
 
 
-# Yearly analysis YES/NO
-yearly = False
+# Site specific analysis YES/NO
+siteAnalysis = False
 
 # Timeseries analysis YES/NO
-timeseries = True
+timeseriesAnalysis = False
 
 # Re-plot YES/NO
-rePlotYears = False
-rePlotSites = False
-rePlotTS = False # timeseries
-rePlotDC = True # timeseries decomposition
+rePlotYears = True
+rePlotSiteAnalysis = False
+rePlotTSAnalysis = False # timeseries
+rePlotDC = False # timeseries decomposition
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
 skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
@@ -59,8 +59,8 @@ excl = [[1976], [2009], [2002], [0], [1967], [2002], [0], [1982]] # years to exc
 # endTime = '2021-02-20T00:00:00'
 
 # Define timeperiod in winters
-startWinter = 1966
-endWinter = 2020
+startWinter = 2020
+endWinter = 2021
 assert endWinter > startWinter
 years = str(startWinter)+'-'+str(endWinter)
 
@@ -123,7 +123,7 @@ for startTime,endTime in zip(startTimes,endTimes):
     del(df)
 
 
-if yearly:
+if siteAnalysis:
     # Fill sites with yearly (winter) data
     master = fillMaster(master,startWinter,pD)
 
@@ -137,26 +137,30 @@ if yearly:
     master = calcRowStat(master)
 
     # Plot site specific statistics
-    if rePlotSites:
+    if rePlotSiteAnalysis:
         plotSite(master,par,startWinter,endWinter,siteToSki,siteToEst,pS)
 
     # Delete master file to free space
     del(master)
 
 
-if timeseries:
+if timeseriesAnalysis:
     # Create timeseries-dataframes
     ts = createTimeseries(sites,pD)
 
-    # Plot timeseries
-    if rePlotTS:
+    # Plot timeseries raw
+    if rePlotTSAnalysis:
         plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'unprocessed')
 
     # Interpolate missing values
     ts = interpolateNaNs(ts)
 
-    # Decompose timeseries into statsmodels
-    models = deCompose(ts,par,pS,rePlotDC)
+    # Plot timeseries raw interpolated
+    if rePlotTSAnalysis:
+        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'processed')
+
+    # Decompose timeseries into statsmodels and plot
+    models = deCompose(ts,par,pS,rePlotDCAnalysis)
 
     # Delete timeseries to free space
     # del(ts)
