@@ -15,7 +15,7 @@ from checkAvailability import checkAvailability
 from fetchFmiData import fetchFmiData
 from toPandasDF import toPandasDF
 from plotter import plotYear, plotSite, plotTimeseries
-from fillMaster import fillMaster
+from returnMaster import returnMaster
 from parameterSpecific import parameterSpecific
 from interpolateNaNs import interpolateNaNs
 from calcStat import calcRowStat, calcYearStat, deCompose
@@ -28,19 +28,19 @@ import pandas as pd
 
 
 # Site specific analysis YES/NO
-siteAnalysis = False
+siteAnalysis = True
 
 # Timeseries analysis YES/NO
-timeseriesAnalysis = False
+timeseriesAnalysis = True
 
 # Re-plot YES/NO
 rePlotYears = True
-rePlotSiteAnalysis = False
-rePlotTSAnalysis = False # timeseries
-rePlotDC = False # timeseries decomposition
+rePlotSiteAnalysis = True
+rePlotTSAnalysis = True # timeseries
+rePlotDC = True # timeseries decomposition
 
 # Ski Centers: Saariselkä, Levi, Ylläs/Pallas/Ollos, Pyhä/Luosto, Ruka, Syöte, Vuokatti, Kilpisjärvi
-skiCenters = ['Saariselkä','Levi','Ylläs|Pallas|Ollos','Pyhä|Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
+skiCenters = ['Saariselkä','Levi','Ylläs&Pallas&Ollos','Pyhä&Luosto','Ruka','Syöte','Vuokatti','Kilpisjärvi']
 
 # And closest FMI-sites with snow records
 sites = ['Inari Saariselkä matkailukeskus','Kittilä kirkonkylä','Kittilä Kenttärova','Kemijärvi lentokenttä','Kuusamo Kiutaköngäs','Taivalkoski kirkonkylä','Sotkamo Kuolaniemi','Enontekiö Kilpisjärvi kyläkeskus']
@@ -73,6 +73,7 @@ paths = createPaths(years)
 pD = paths[0]  # data
 pP = paths[1]  # pics
 pS = paths[2]  # sites
+pSTS = paths[3]  # time-series analysis
 
 # Generate timeperiods for winters
 [startTimes,endTimes] = splitWinters(startWinter,endWinter,startDay,endDay)
@@ -99,13 +100,14 @@ for startTime,endTime in zip(startTimes,endTimes):
         print(avl_sites)
     # Create unique name for yearly parameter query
     name = par+'_'+startTime+'_'+endTime
+    name = name.replace(":","_")
 
     # If pickle-file exists, skip fetch and save, but recreate plots
     if Path('./'+str(pD)+'/'+name+'.pkl').is_file():
         print(name+' already exists')
         if rePlotYears:
             df = pd.read_pickle(Path('./'+str(pD)+'/'+name+'.pkl'))
-            plotYear(df,avl_skiCenters,par,name)
+            plotYear(df,avl_skiCenters,par,name,years,pP)
         continue
 
     # Fetch data as a list of queries
@@ -125,7 +127,7 @@ for startTime,endTime in zip(startTimes,endTimes):
 
 if siteAnalysis:
     # Fill sites with yearly (winter) data
-    master = fillMaster(master,startWinter,pD)
+    master = returnMaster(sites,startWinter,pD)
 
     # Do parameter specific tricks (if any)
     master = parameterSpecific(master,par)
@@ -138,7 +140,7 @@ if siteAnalysis:
 
     # Plot site specific statistics
     if rePlotSiteAnalysis:
-        plotSite(master,par,startWinter,endWinter,siteToSki,siteToEst,pS)
+        plotSite(master,par,startWinter,endWinter,siteToSki,siteToEst,pSTS)
 
     # Delete master file to free space
     del(master)
@@ -150,17 +152,17 @@ if timeseriesAnalysis:
 
     # Plot timeseries raw
     if rePlotTSAnalysis:
-        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'unprocessed')
+        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pSTS,'unprocessed')
 
     # Interpolate missing values
     ts = interpolateNaNs(ts)
 
     # Plot timeseries raw interpolated
     if rePlotTSAnalysis:
-        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pS,'processed')
+        plotTimeseries(ts,par,startWinter,endWinter,siteToSki,siteToEst,pSTS,'processed')
 
     # Decompose timeseries into statsmodels and plot
-    models = deCompose(ts,par,pS,rePlotDCAnalysis)
+    models = deCompose(ts,par,pSTS,rePlotDC)
 
     # Delete timeseries to free space
     # del(ts)

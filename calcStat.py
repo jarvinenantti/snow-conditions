@@ -37,7 +37,7 @@ def calcYearStat(data,site,year):
             year.describe()
 
 
-def deCompose(data,par,pS,rePlotDC):
+def deCompose(data,par,pSTS,rePlotDC):
     '''Decompose timeseries using statsmodels (additive model)'''
     
     # Loop add sites
@@ -49,4 +49,4 @@ def deCompose(data,par,pS,rePlotDC):
         # Decompose
         result_add = seasonal_decompose(data[site], model='additive', period=303, extrapolate_trend='freq')
         if rePlotDC:
-            plotDecomposition(result_add,par,site,pS)
+            plotDecomposition(result_add,par,site,pSTS)
