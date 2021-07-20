@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 
-def fillMaster(master,startWinter,pD):
-    '''Fill master dataframe with sites with year columns'''
+def returnMaster(sites,startWinter,pD):
+    '''Return master dataframe with sites with year columns'''
     
     # To calculate statistics for each site
     # create general DatetimeIndex column (no leap year)

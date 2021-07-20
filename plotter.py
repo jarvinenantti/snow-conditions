@@ -77,7 +77,7 @@ def plotSite(data,par,startWinter,endWinter,siteToSki,siteToEst,pS):
         plt.savefig('./'+str(pS)+'/'+name+'.png')
 
 
-def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pS,raw):
+def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pSTS,raw):
     ''' Plot timeseries of each site'''
 
     unit = ''
@@ -107,11 +107,11 @@ def plotTimeseries(data,par,startWinter,endWinter,siteToSki,siteToEst,pS,raw):
         plt.title(siteToSki[key]+' '+begin+'-'+end+' '+'1.9.-30.6.'+' '+raw)
         # Save figure and close
         name = par+'_'+siteToSki[key]+'_'+begin+'_'+end+'_ts_'+raw
-        plt.savefig('./'+str(pS)+'/ts/'+name+'.png')
+        plt.savefig('./'+str(pSTS)+'/'+name+'.png')
         plt.close("all")
 
 
-def plotDecomposition(result_add,par,site,pS):
+def plotDecomposition(result_add,par,site,pSTS):
     '''Plot statsmodels decomposition of timeseries-data'''
 
     plt.close("all")
@@ -120,5 +120,5 @@ def plotDecomposition(result_add,par,site,pS):
 
     # Save figure and close
     name = par+'_'+site+'_dc'
-    plt.savefig('./'+str(pS)+'/'+name+'.png')
+    plt.savefig('./'+str(pSTS)+'/'+name+'.png')
     plt.close("all")
