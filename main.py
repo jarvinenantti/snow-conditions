@@ -6,7 +6,7 @@ https://github.com/pnuu/fmiopendata
 pip install fmiopendata
 numpy, requests, pandas, datetime, math, matplotlib, pathlib, os
 
-Configured for 1.9. - 30.6. (~winter) !
+Configured for 1.9. - 30.6. (~possibility for snow in ground) !
 '''
 
 from createPaths import createPaths
@@ -48,7 +48,7 @@ sites = ['Inari Saariselkä matkailukeskus','Kittilä kirkonkylä','Kittilä Ken
 # Establishment year / snow record availability of the FMI site
 # Sotkamo 1989->2009
 # Enontekiö 1951->1979
-est = [1976, 2009, 2002, 2006, 1966, 2002, 2009, 1979]
+est = [1976, 2009, 2002, 2006, 1966, 2002, 2009, 1979] # established
 excl = [[1976], [2009], [2002], [0], [1967], [2002], [0], [1982]] # years to exclude
 
 # Example query timeperiod (for past winters)
@@ -59,8 +59,8 @@ excl = [[1976], [2009], [2002], [0], [1967], [2002], [0], [1982]] # years to exc
 # endTime = '2021-02-20T00:00:00'
 
 # Define timeperiod in winters
-startWinter = 2020
-endWinter = 2021
+startWinter = 2017
+endWinter = 2020
 assert endWinter > startWinter
 years = str(startWinter)+'-'+str(endWinter)
 
